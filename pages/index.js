@@ -6,7 +6,7 @@ export default function Home({ machines }) {
 }
 
 export async function getServerSideProps() {
-  const { data: machines, error } = await supabase
+  const { data, error } = await supabase
     .from('machines')
     .select('*')
     .order('name')
@@ -15,6 +15,12 @@ export async function getServerSideProps() {
     console.error(error)
     return { props: { machines: [] } }
   }
+
+  // tags 문자열을 배열로 변환
+  const machines = data.map(m => ({
+    ...m,
+    tags: typeof m.tags === 'string' ? m.tags.split(',') : m.tags || []
+  }))
 
   return {
     props: { machines }
