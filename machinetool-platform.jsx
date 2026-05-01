@@ -163,7 +163,8 @@ const makerColors = {
 
 const previewKeys = ["주축 최대 회전수","주축 파워","주축 토크","매거진 툴 수","제어기"];
 
-export default function App() {
+export default function App({ machines: externalMachines }) {
+  const machineData = externalMachines && externalMachines.length > 0 ? externalMachines : machines;
   const [view, setView] = useState("browse");
   const [compareList, setCompareList] = useState([]);
   const [filterType, setFilterType] = useState("전체");
@@ -179,7 +180,7 @@ export default function App() {
   const types = ["전체", ...new Set(machines.map((m) => m.type))];
   const makers = ["전체", ...new Set(machines.map((m) => m.maker))];
 
-  const filtered = machines.filter((m) => {
+  const filtered = machineData.filter((m) => {
     const matchType = filterType === "전체" || m.type === filterType;
     const matchMaker = filterMaker === "전체" || m.maker === filterMaker;
     const matchSearch = !searchQuery ||
