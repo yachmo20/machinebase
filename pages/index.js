@@ -4,10 +4,19 @@ import App from '../machinetool-platform'
 
 const PAGE_SIZE = 20
 
-export default function Home({ initialMachines, total }) {
+export default function Home({ initialMachines, total, todayViews }) {
   const [machines, setMachines] = useState(initialMachines)
   const [loading, setLoading] = useState(false)
   const loaderRef = useRef(null)
+
+  // 방문자 기록
+  useEffect(() => {
+    fetch('/api/pageview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: '/' })
+    })
+  }, [])
 
   const loadMore = async () => {
     if (loading || machines.length >= total) return
@@ -15,7 +24,7 @@ export default function Home({ initialMachines, total }) {
     const from = machines.length
     const { data } = await supabase
       .from('machines')
-      .select('id,name,maker,country,country_en,type,year,tags,rating,reviews,max_workpiece_size,max_rapid_feed,specs')
+      .select('id,name,maker,country,country_en,type,year,tags,rating,rating_avg,rating_count,reviews,max_workpiece_size,max_rapid_feed,specs')
       .order('name')
       .range(from, from + PAGE_SIZE - 1)
     if (data) {
@@ -28,7 +37,6 @@ export default function Home({ initialMachines, total }) {
     setLoading(false)
   }
 
-  // 무한 스크롤 — 화면 하단 도달 시 자동 로드
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => { if (entries[0].isIntersecting) loadMore() },
@@ -40,8 +48,7 @@ export default function Home({ initialMachines, total }) {
 
   return (
     <>
-      <App machines={machines} total={total} />
-      {/* 로딩 트리거 */}
+      <App machines={machines} total={total} todayViews={todayViews} />
       <div ref={loaderRef} style={{ height:'40px', display:'flex', alignItems:'center', justifyContent:'center' }}>
         {loading && <span style={{ color:'#4fc3f7', fontSize:'13px' }}>Loading...</span>}
         {!loading && machines.length >= total && machines.length > 0 && (
@@ -55,16 +62,30 @@ export default function Home({ initialMachines, total }) {
 export async function getServerSideProps() {
   const { data, error, count } = await supabase
     .from('machines')
-    .select('id,name,maker,country,type,year,tags,rating,reviews,max_workpiece_size,max_rapid_feed', { count:'exact' })
+    .select('id,name,maker,country,country_en,type,year,tags,rating,rating_avg,rating_count,reviews,max_workpiece_size,max_rapid_feed,specs', { count:'exact' })
     .order('name')
     .range(0, PAGE_SIZE - 1)
 
-  if (error) return { props: { initialMachines:[], total:0 } }
+  if (error) return { props: { initialMachines:[], total:0, todayViews:0 } }
 
   const initialMachines = (data || []).map(m => ({
     ...m,
     tags: typeof m.tags === 'string' ? m.tags.split(',') : m.tags || []
   }))
 
-  return { props: { initialMachines, total: count || 0 } }
+  // 오늘 방문자 수
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const { count: todayCount } = await supabase
+    .from('page_views')
+    .select('*', { count:'exact', head:true })
+    .gte('viewed_at', today.toISOString())
+
+  return {
+    props: {
+      initialMachines,
+      total: count || 0,
+      todayViews: todayCount || 0
+    }
+  }
 }
