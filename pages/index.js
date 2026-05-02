@@ -15,7 +15,7 @@ export default function Home({ initialMachines, total }) {
     const from = machines.length
     const { data } = await supabase
       .from('machines')
-      .select('id,name,maker,country,type,year,tags,rating,reviews,max_workpiece_size,max_rapid_feed')
+      .select('id,name,maker,country,country_en,type,year,tags,rating,reviews,max_workpiece_size,max_rapid_feed,specs')
       .order('name')
       .range(from, from + PAGE_SIZE - 1)
     if (data) {
