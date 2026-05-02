@@ -25,7 +25,7 @@ export default function Home({ initialMachines, total, todayViews }) {
     const { data } = await supabase
       .from('machines')
       .select('id,name,maker,country,country_en,type,year,tags,rating,rating_avg,rating_count,reviews,max_workpiece_size,max_rapid_feed,specs')
-      .order('name')
+      .order('maker').order('name')
       .range(from, from + PAGE_SIZE - 1)
     if (data) {
       const newItems = data.map(m => ({
