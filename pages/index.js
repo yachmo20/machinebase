@@ -9,7 +9,6 @@ export default function Home({ initialMachines, total, todayViews }) {
   const [loading, setLoading] = useState(false)
   const loaderRef = useRef(null)
 
-  // 방문자 기록
   useEffect(() => {
     fetch('/api/pageview', {
       method: 'POST',
@@ -24,8 +23,9 @@ export default function Home({ initialMachines, total, todayViews }) {
     const from = machines.length
     const { data } = await supabase
       .from('machines')
-      .select('id,name,maker,country,country_en,type,year,tags,rating,rating_avg,rating_count,reviews,max_workpiece_size,max_rapid_feed,specs')
-      .order('maker').order('name')
+      .select('id,name,maker,country,country_en,type,year,tags,rating_avg,rating_count,max_workpiece_size,max_rapid_feed,specs')
+      .order('maker')
+      .order('name')
       .range(from, from + PAGE_SIZE - 1)
     if (data) {
       const newItems = data.map(m => ({
@@ -62,23 +62,26 @@ export default function Home({ initialMachines, total, todayViews }) {
 export async function getServerSideProps() {
   const { data, error, count } = await supabase
     .from('machines')
-    .select('id,name,maker,country,country_en,type,year,tags,rating,rating_avg,rating_count,reviews,max_workpiece_size,max_rapid_feed,specs', { count:'exact' })
+    .select('id,name,maker,country,country_en,type,year,tags,rating_avg,rating_count,max_workpiece_size,max_rapid_feed,specs', { count: 'exact' })
+    .order('maker')
     .order('name')
     .range(0, PAGE_SIZE - 1)
 
-  if (error) return { props: { initialMachines:[], total:0, todayViews:0 } }
+  if (error) {
+    console.error('Supabase error:', error)
+    return { props: { initialMachines: [], total: 0, todayViews: 0 } }
+  }
 
   const initialMachines = (data || []).map(m => ({
     ...m,
     tags: typeof m.tags === 'string' ? m.tags.split(',') : m.tags || []
   }))
 
-  // 오늘 방문자 수
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const { count: todayCount } = await supabase
     .from('page_views')
-    .select('*', { count:'exact', head:true })
+    .select('*', { count: 'exact', head: true })
     .gte('viewed_at', today.toISOString())
 
   return {
