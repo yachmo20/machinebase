@@ -4,7 +4,7 @@ const specGroups = [
   {
     label: "가공 범위",
     icon: "📐",
-    keys: ["최대 가공 직경","최대 가공 길이","X축 스트로크","Y축 스트로크","Z축 스트로크","테이블 크기","최대 적재 하중"],
+    keys: ["최대 소재 크기","최대 가공 직경","최대 가공 길이","X축 스트로크","Y축 스트로크","Z축 스트로크","테이블 크기","최대 적재 하중"],
   },
   {
     label: "주축 사양",
@@ -14,7 +14,7 @@ const specGroups = [
   {
     label: "이송 성능",
     icon: "⚡",
-    keys: ["X축 급이송속도","Y축 급이송속도","Z축 급이송속도"],
+    keys: ["최대 급이송속도","X축 급이송속도","Y축 급이송속도","Z축 급이송속도"],
   },
   {
     label: "툴 매거진",
@@ -161,7 +161,7 @@ const makerColors = {
   "Hyundai WIA":"#38bdf8",Okuma:"#a78bfa",Haas:"#4ade80",
 };
 
-const previewKeys = ["주축 최대 회전수","주축 파워","주축 토크","매거진 툴 수","제어기"];
+const previewKeys = ["최대 소재 크기","최대 급이송속도","주축 최대 회전수","주축 파워","매거진 툴 수"];
 
 export default function App({ machines: externalMachines }) {
   const machineData = externalMachines && externalMachines.length > 0 ? externalMachines : machines;
