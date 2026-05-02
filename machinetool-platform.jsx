@@ -402,7 +402,29 @@ export default function App({ machines: externalMachines }) {
   };
 
   const isInCompare = (id) => compareList.some((m) => m.id === id);
-  const openDetail = (machine) => { setDetailMachine(machine); setView("detail"); };
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const openDetail = async (machine) => {
+    setView("detail");
+    if (machine.specs) {
+      setDetailMachine(machine);
+      return;
+    }
+    setLoadingDetail(true);
+    setDetailMachine(machine);
+    try {
+      const res = await fetch(`/api/machine?id=${machine.id}`);
+      const data = await res.json();
+      if (data) {
+        const full = {
+          ...data,
+          tags: typeof data.tags === 'string' ? data.tags.split(',') : data.tags || []
+        };
+        setDetailMachine(full);
+      }
+    } catch (e) { console.error(e); }
+    setLoadingDetail(false);
+  };
 
   const getSpecKey = (key) => lang === "en" ? (specKeyMap[key] || key) : key;
   const getGroupLabel = (label) => t.specGroups[label] || label;
@@ -561,6 +583,11 @@ export default function App({ machines: externalMachines }) {
         {/* DETAIL */}
         {view === "detail" && detailMachine && (
           <section style={S.detailView}>
+            {loadingDetail && (
+              <div style={{ textAlign:"center", padding:"20px", color:"#4fc3f7", fontSize:"13px" }}>
+                ⟳ {lang === "ko" ? "상세 스펙 불러오는 중..." : "Loading full specs..."}
+              </div>
+            )}
             <div style={S.compareHeader}>
               <button onClick={() => setView("browse")} style={S.backBtn}>{t.backToList}</button>
               <div>
