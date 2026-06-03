@@ -5,6 +5,8 @@ export default function Document() {
       <Head>
         {/* Google Search Console */}
         <meta name="google-site-verification" content="bl_2b3x6-2VniZH5sX9WAiMXN-STpMNeBIPo22VEgyo" />
+        {/* Naver Search Advisor */}
+        <meta name="naver-site-verification" content="5735bba74be55947a2b39e5084de20a227e143d9" />
         {/* Google AdSense */}
         <script
           async
