@@ -1,9 +1,10 @@
 import { Html, Head, Main, NextScript } from "next/document";
-
 export default function Document() {
   return (
     <Html lang="ko">
       <Head>
+        {/* Google Search Console */}
+        <meta name="google-site-verification" content="bl_2b3x6-2VniZH5sX9WAiMXN-STpMNeBIPo22VEgyo" />
         {/* Google AdSense */}
         <script
           async
