@@ -267,6 +267,7 @@ export default function App({ machines: externalMachines, todayViews: initialTod
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [todayViews, setTodayViews] = useState(initialTodayViews || 0);
   const [isMobile, setIsMobile] = useState(false);
+  const [manufacturer, setManufacturer] = useState(null);
 
   useEffect(() => {
     setMounted(true);
@@ -306,7 +307,11 @@ export default function App({ machines: externalMachines, todayViews: initialTod
 
   const openDetail = async (machine) => {
     setView("detail");
+    setManufacturer(null);
     window.history.pushState({ view: "detail" }, "");
+    // 제조사 소개 fetch (병렬)
+    fetch(`/api/manufacturer?maker=${encodeURIComponent(machine.maker)}`)
+      .then(r => r.json()).then(d => { if (d) setManufacturer(d); }).catch(() => {});
     if (machine.specs) { setDetailMachine(machine); return; }
     setLoadingDetail(true);
     setDetailMachine(machine);
@@ -590,6 +595,76 @@ export default function App({ machines: externalMachines, todayViews: initialTod
               </div>
             ))}
             <ReportForm machine={detailMachine} lang={lang} dark={dark} />
+
+            {/* 제조사 소개 섹션 */}
+            {manufacturer && (
+              <div style={{ marginTop:"32px", border:`1px solid ${c.specBlockBorder}`, borderRadius:"12px", overflow:"hidden" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:"8px", padding:"11px 20px", background:c.specTitleBg, borderBottom:`1px solid ${c.specBlockBorder}`, fontSize:"13px", fontWeight:"700", color:"#4fc3f7", letterSpacing:"1px" }}>
+                  <span>🏭</span>
+                  <span>{lang === "ko" ? "제조사 소개" : "About the Manufacturer"}</span>
+                </div>
+                <div style={{ padding:"24px", background:c.cardBg }}>
+                  {/* 상단: 제조사명 + 기본 정보 */}
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:"16px", marginBottom:"20px" }}>
+                    <div>
+                      <div style={{ fontSize:"18px", fontWeight:"700", color:c.text, marginBottom:"4px" }}>
+                        {manufacturer.name_ko}
+                      </div>
+                      <div style={{ fontSize:"12px", color:c.textMuted }}>{manufacturer.name_en}</div>
+                    </div>
+                    {manufacturer.website && (
+                      <a href={`https://${manufacturer.website}`} target="_blank" rel="noreferrer"
+                        style={{ fontSize:"12px", color:"#4fc3f7", textDecoration:"none", border:"1px solid rgba(79,195,247,0.3)", padding:"6px 14px", borderRadius:"7px" }}>
+                        🔗 {lang === "ko" ? "공식 홈페이지" : "Official Website"}
+                      </a>
+                    )}
+                  </div>
+                  {/* 기본 정보 그리드 */}
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))", gap:"12px", marginBottom:"20px" }}>
+                    {manufacturer.founded && manufacturer.founded !== "-" && (
+                      <div style={{ padding:"12px", background:dark?"rgba(255,255,255,0.03)":"#f8fafc", borderRadius:"8px", border:`1px solid ${c.specItemBorder}` }}>
+                        <div style={{ fontSize:"10px", color:c.specKeyColor, marginBottom:"4px", letterSpacing:"0.5px" }}>
+                          {lang === "ko" ? "설립연도" : "Founded"}
+                        </div>
+                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>{manufacturer.founded}</div>
+                      </div>
+                    )}
+                    {manufacturer.headquarters_ko && manufacturer.headquarters_ko !== "-" && (
+                      <div style={{ padding:"12px", background:dark?"rgba(255,255,255,0.03)":"#f8fafc", borderRadius:"8px", border:`1px solid ${c.specItemBorder}` }}>
+                        <div style={{ fontSize:"10px", color:c.specKeyColor, marginBottom:"4px", letterSpacing:"0.5px" }}>
+                          {lang === "ko" ? "본사" : "Headquarters"}
+                        </div>
+                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>
+                          {lang === "ko" ? manufacturer.headquarters_ko : manufacturer.headquarters_en}
+                        </div>
+                      </div>
+                    )}
+                    {manufacturer.employees && manufacturer.employees !== "-" && (
+                      <div style={{ padding:"12px", background:dark?"rgba(255,255,255,0.03)":"#f8fafc", borderRadius:"8px", border:`1px solid ${c.specItemBorder}` }}>
+                        <div style={{ fontSize:"10px", color:c.specKeyColor, marginBottom:"4px", letterSpacing:"0.5px" }}>
+                          {lang === "ko" ? "임직원" : "Employees"}
+                        </div>
+                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>{manufacturer.employees}</div>
+                      </div>
+                    )}
+                    {manufacturer.specialties && manufacturer.specialties !== "-" && (
+                      <div style={{ padding:"12px", background:dark?"rgba(255,255,255,0.03)":"#f8fafc", borderRadius:"8px", border:`1px solid ${c.specItemBorder}`, gridColumn:"span 2" }}>
+                        <div style={{ fontSize:"10px", color:c.specKeyColor, marginBottom:"4px", letterSpacing:"0.5px" }}>
+                          {lang === "ko" ? "주요 제품군" : "Specialties"}
+                        </div>
+                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>{manufacturer.specialties}</div>
+                      </div>
+                    )}
+                  </div>
+                  {/* 소개 텍스트 */}
+                  {manufacturer.description_ko && (
+                    <p style={{ fontSize:"13px", color:c.textSub, lineHeight:"1.8", margin:0, borderTop:`1px solid ${c.specItemBorder}`, paddingTop:"16px" }}>
+                      {manufacturer.description_ko}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
