@@ -639,27 +639,33 @@ export default function App({ machines: externalMachines, todayViews: initialTod
                         </div>
                       </div>
                     )}
-                    {manufacturer.employees && manufacturer.employees !== "-" && (
+                    {(manufacturer.employees || manufacturer.employees_en) && (manufacturer.employees !== "-" || manufacturer.employees_en !== "-") && (
                       <div style={{ padding:"12px", background:dark?"rgba(255,255,255,0.03)":"#f8fafc", borderRadius:"8px", border:`1px solid ${c.specItemBorder}` }}>
                         <div style={{ fontSize:"10px", color:c.specKeyColor, marginBottom:"4px", letterSpacing:"0.5px" }}>
                           {lang === "ko" ? "임직원" : "Employees"}
                         </div>
-                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>{manufacturer.employees}</div>
+                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>
+                          {lang === "ko" ? manufacturer.employees : (manufacturer.employees_en || manufacturer.employees)}
+                        </div>
                       </div>
                     )}
-                    {manufacturer.specialties && manufacturer.specialties !== "-" && (
+                    {(manufacturer.specialties || manufacturer.specialties_en) && (manufacturer.specialties !== "-" || manufacturer.specialties_en !== "-") && (
                       <div style={{ padding:"12px", background:dark?"rgba(255,255,255,0.03)":"#f8fafc", borderRadius:"8px", border:`1px solid ${c.specItemBorder}`, gridColumn:"span 2" }}>
                         <div style={{ fontSize:"10px", color:c.specKeyColor, marginBottom:"4px", letterSpacing:"0.5px" }}>
                           {lang === "ko" ? "주요 제품군" : "Specialties"}
                         </div>
-                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>{manufacturer.specialties}</div>
+                        <div style={{ fontSize:"13px", color:c.specValColor, fontWeight:"600" }}>
+                          {lang === "ko" ? manufacturer.specialties : (manufacturer.specialties_en || manufacturer.specialties)}
+                        </div>
                       </div>
                     )}
                   </div>
-                  {/* 소개 텍스트 */}
-                  {manufacturer.description_ko && (
+                  {/* 소개 텍스트 — ✅ 수정: lang에 따라 영문/한글 분기 */}
+                  {(manufacturer.description_ko || manufacturer.description_en) && (
                     <p style={{ fontSize:"13px", color:c.textSub, lineHeight:"1.8", margin:0, borderTop:`1px solid ${c.specItemBorder}`, paddingTop:"16px" }}>
-                      {manufacturer.description_ko}
+                      {lang === "ko"
+                        ? manufacturer.description_ko
+                        : (manufacturer.description_en || manufacturer.description_ko)}
                     </p>
                   )}
                 </div>
