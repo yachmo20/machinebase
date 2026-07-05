@@ -197,6 +197,8 @@ const specKeyMap = {
 const typeMap = {
   "복합가공기":"Multi-Tasking","CNC 선반":"CNC Lathe","머시닝센터":"Machining Center",
   "5축 머시닝센터":"5-Axis MC","수평 머시닝센터":"Horizontal MC","드릴탭센터":"Drill/Tap Center",
+  "CNC 자동선반":"CNC Swiss Lathe","보링밀":"Boring Mill","더블컬럼 머시닝센터":"Double Column MC",
+  "5축 더블컬럼 머시닝센터":"5-Axis Double Column MC","5축 수평 머시닝센터":"5-Axis Horizontal MC",
 };
 
 const machines_fallback = [
